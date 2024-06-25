@@ -1,4 +1,6 @@
 #include<stdio.h>
+#include <errno.h>
+#include <ctype.h>
 
 void *memchr(const void *str, int c, size_t n)//1+
 int memcmp(const void *str1, const void *str2, size_t n);//2+
@@ -11,12 +13,30 @@ char *strncpy(char *dest, const char *src, size_t n);//8+
 size_t strcspn(const char *str1, const char *str2);//9+
 char *strerror(int errnum);//10+
 size_t strlen(const char *str);//11+
-char *strpbrk(const char *str1, const char *str2);//12-
-char *strrchr(const char *str, int c);//13-
-char *strstr(const char *haystack, const char *needle)//14-
-char *strtok(char *str, const char *delim)//15-
+char *strpbrk(const char *str1, const char *str2);//12+
+char *strrchr(const char *str, int c);//13+
+char *strstr(const char *haystack, const char *needle)//14+
+char *strtok(char *str, const char *delim);//15+
+void *to_upper(const char *str);//16-
+void *to_lower(const char *str);//17-
+void *insert(const char *src, const char *str, size_t start_index);//18-
+void *trim(const char *src, const char *trim_chars);//19-
 
-int main(){}
+const char* error_messages[] = {
+    "Operation not permitted",
+    "No such file or directory",
+    "Not a directory",
+    "Invalid argument",
+    "Incorrect file descriptor number",
+    "Address already in use",
+    "Permission denied",
+    "Resource temporarily unavailable",
+    "Deadlock condition",
+    "Interrupted system call",
+    "I/O error",
+    "No room left on device",
+    "Unknown error"
+};
 
 size_t streln(const char *str){
     const char *str1 =str;
@@ -116,12 +136,87 @@ char *strncpy(char *dest, const char *src, size_t n) {
 }
 
 char *strerror(int errnum) {
-    static char buf[1024]; 
-    if(errnum >= 0 && errnum < sizeof(sys_errlist)/sizeof(sys_errlist[0])) {
-        strncpy(buf, sys_errlist[errnum].str, sizeof(buf));
-        buf[sizeof(buf)-1] = '\0'; 
-        return buf;
+    if (errnum >= 0 && errnum < sizeof(error_messages)/sizeof(error_messages[0])) {
+        return error_messages[errnum];
     } else {
-        return "Unknown error"; 
+        return "Unknown error";
     }
 }
+
+char *strpbrk(const char *str1, const char *str2) {
+    const char *ptr1 = str1;
+    const char *ptr2 = str2;
+    bool found = false;
+    while (*ptr1) {
+        if (*ptr1 == *ptr2) {
+            found = true;
+            break;
+        }
+        ptr2++; 
+        if (*ptr2 == '\0') {
+            ptr1++;
+        }
+    }
+    if (found) {
+        return (char *)ptr1;
+    }
+    return NULL;
+}
+
+char *strrchr(const char *str, int c) {
+    const char* start = str;
+    const char* end = str + strlen(str); 
+    while (end >= start) {
+        if (*end == c) {
+            return (char*)end; 
+        }
+        end--;
+    }
+    return NULL; 
+}
+
+char *strstr(const char *haystack, const char *needle) {
+    const char* h = haystack;
+    const char* n = needle;
+    if (*n == '\0') {
+        return (char*)haystack;
+    }
+    while (*h) {
+        if (*h == *n && memcmp(h, n, strlen(n)) == 0) {
+            return (char*)h;
+        }
+        h++;
+    }
+    return NULL;
+}
+
+char *strtok(char *str, const char *delim) {
+    static char* buffer = NULL;
+    }
+    if(str != NULL){
+        buffer = str;
+        char* saveptr = buffer;
+        char* token = strpbrk(buffer, delim);
+        if (token) {
+            *token = '\0';
+            token++;
+    } else {
+        token = buffer + strlen(buffer);
+    }
+    buffer = token;
+    } else saveptr = NULL;
+
+    return saveptr;
+}
+
+void *to_upper(const char *str){}//16-
+
+
+void *to_lower(const char *str){}//17-
+
+
+void *insert(const char *src, const char *str, size_t start_index){}//18-
+
+
+void *trim(const char *src, const char *trim_chars){}//19-
+
