@@ -2,17 +2,17 @@
 #include <errno.h>
 #include <ctype.h>
 
-void *memchr(const void *str, int c, size_t n)//1+
-int memcmp(const void *str1, const void *str2, size_t n);//2+
-void *memcpy(void *dest, const void *src, size_t n);//3+
-void *memset(void *str, int c, size_t n);//4+
-char *strncat(char *dest, const char *src, size_t n);//5+
-char *strchr(const char *str, int c);//6+
-int strncmp(const char *str1, const char *str2, size_t n);//7+
-char *strncpy(char *dest, const char *src, size_t n);//8+
-size_t strcspn(const char *str1, const char *str2);//9+
-char *strerror(int errnum);//10+
-size_t strlen(const char *str);//11+
+void *memchr(const void *str, int c, size_t n)//1+++
+int memcmp(const void *str1, const void *str2, size_t n);//2+++
+void *memcpy(void *dest, const void *src, size_t n);//3+++
+void *memset(void *str, int c, size_t n);//4+++
+char *strncat(char *dest, const char *src, size_t n);//5+++
+char *strchr(const char *str, int c);//6+++
+int strncmp(const char *str1, const char *str2, size_t n);//7+++
+char *strncpy(char *dest, const char *src, size_t n);//8+++
+size_t strcspn(const char *str1, const char *str2);//9+++
+char *strerror(int errnum);//10+???????????
+size_t strlen(const char *str);//11+++
 char *strpbrk(const char *str1, const char *str2);//12+
 char *strrchr(const char *str, int c);//13+
 char *strstr(const char *haystack, const char *needle)//14+
@@ -38,9 +38,9 @@ const char* error_messages[] = {
     "Unknown error"
 };
 
-size_t streln(const char *str){
+size_t strlen(const char *str){
     const char *str1 =str;
-    while ( str1!= '\n'){
+    while ( *str1!= '\n'){
         str1++;
     }
     return str1-str;
@@ -48,7 +48,7 @@ size_t streln(const char *str){
 
 void *memchr(const void *str, int c, size_t n) {
     const unsigned char* str1 = (const unsigned char*)str;
-    for (size_t i = 0; i < lengnth; ++i) {
+    for (size_t i = 0; i < n; ++i) {
         if (str1[i] == (unsigned char)c) {
             return (char*)(str1 + i);
         }
@@ -60,7 +60,7 @@ int memcmp(const void *str1, const void *str2, size_t n) {
     const unsigned char* str11 = (const unsigned char*)str1;
     const unsigned char* str12 = (const unsigned char*)str2;
     for(size_t i = 0; i < n; ++i) {
-        if(pstr11[i]!= str12[i]) {
+        if(str11[i]!= str12[i]) {
             return str11[i] - str12[i]; 
         }
     }
@@ -93,20 +93,30 @@ int strncmp(const char *str1, const char *str2, size_t n) {
     return 0;
 }
 
-size_t strcspn(const char *str1, const char* str2) {
-    while(*str1!= '\0') {
-        if(strchr(str2, *str1)) {
+size_t strcspn(const char *str1, const char *str2) {
+    const char *p = str1;
+    while (*p!= '\0') {
+        int found = 0;
+        const char *q = str2;
+        while (*q!= '\0' &&!found) {
+            if (*p == *q) {
+                found = 1;
+            }
+            q++;
+        }
+        if (!found) {
+            p++;
+        } else {
             break;
         }
-        str1++;
     }
-    return str1 - str1; 
+    return p - str1;
 }
 
 char *strchr(const char *str, int c) {
     while(*str!= '\0') {
         if(*str == c) {
-            return str;
+            return (char*)str;
         }
         str++;
     }
@@ -135,13 +145,13 @@ char *strncpy(char *dest, const char *src, size_t n) {
     return dest;
 }
 
-char *strerror(int errnum) {
-    if (errnum >= 0 && errnum < sizeof(error_messages)/sizeof(error_messages[0])) {
+char* strerror(int errnum) {
+    if (errnum >= 0 && errnum < sizeof(error_messages)/sizeof(char*)) {
         return error_messages[errnum];
     } else {
         return "Unknown error";
     }
-}
+}//?????
 
 char *strpbrk(const char *str1, const char *str2) {
     const char *ptr1 = str1;

@@ -1,19 +1,36 @@
 #include <stdio.h>
 #include <ctype.h>
-#include <string.h>
-void *to_upper(char *str){
-    size_t len = strlen(str);
-    char *str1;
-    for(int i=0;i<len;i++){
-        if(str[i]>='a' && str[i] <='z'){
-            str1[i]= str[i]- ('a' - 'A');
-        }else str1[i]= str[i];
+char *strpbrk(const char *str1, const char *str2) {
+    const char *ptr1 = str1;
+    const char *ptr2 = str2;
+    bool found = false;
+    while (*ptr1) {
+        if (*ptr1 == *ptr2) {
+            found = true;
+            break;
+        }
+        ptr2++; 
+        if (*ptr2 == '\0') {
+            ptr1++;
+        }
     }
-    return str1;
+    if (found) {
+        return (char *)ptr1;
+    }
+    return NULL;
 }
+
 int main() {
-    char word[] = "qwertyuiop1234567";
-        to_upper(word);
-    printf("rez:   %s\n", word);
+    const char *s = "Hello, World!";
+    const char *accept = "oW";
+
+    char *result = strpbrk(s, accept);
+
+    if (result) {
+        printf("Found '%c' at position %ld\n", *result, result - s);
+    } else {
+        printf("No match found.\n");
+    }
+
     return 0;
 }
