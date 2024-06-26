@@ -1,6 +1,6 @@
 #include<stdio.h>
-#include <errno.h>
 #include <ctype.h>
+#include<stdlib.h>
 
 void *memchr(const void *str, int c, size_t n)//1+++
 int memcmp(const void *str1, const void *str2, size_t n);//2+++
@@ -11,36 +11,146 @@ char *strchr(const char *str, int c);//6+++
 int strncmp(const char *str1, const char *str2, size_t n);//7+++
 char *strncpy(char *dest, const char *src, size_t n);//8+++
 size_t strcspn(const char *str1, const char *str2);//9+++
-char *strerror(int errnum);//10+???????????
+char *strerror(int errnum);//10+++
 size_t strlen(const char *str);//11+++
-char *strpbrk(const char *str1, const char *str2);//12+
-char *strrchr(const char *str, int c);//13+
-char *strstr(const char *haystack, const char *needle)//14+
-char *strtok(char *str, const char *delim);//15+
-void *to_upper(const char *str);//16-
-void *to_lower(const char *str);//17-
+char *strpbrk(const char *str1, const char *str2);//12+++
+char *strrchr(const char *str, int c);//13+++
+char *strstr(const char *haystack, const char *needle)//14+++
+char *strtok(char *str, const char *delim);//15+++
+void *to_upper(const char *str);//16+++ чистить память в мейне при тестах
+void *to_lower(const char *str);//17+++ чистить память в мейне при тестах
 void *insert(const char *src, const char *str, size_t start_index);//18-
 void *trim(const char *src, const char *trim_chars);//19-
 
-const char* error_messages[] = {
+
+size_t strspn(const char *str, const char *keys) {
+  size_t strLength = strlen(str);
+  size_t result = 0;
+
+  for (s21_size_t x = 0; result == 0 && x < strLength; x += 1) {
+    if (strchr(keys, str[x]) != NULL) result = x + 1;
+  }
+
+  return result;
+}
+
+#define MAX_ERRLIST 107
+#define MIN_ERRLIST -1
+#define ERROR "Unknown error: "
+static const char *errorList[] = {
+    "Undefined error: 0",
     "Operation not permitted",
     "No such file or directory",
-    "Not a directory",
-    "Invalid argument",
-    "Incorrect file descriptor number",
-    "Address already in use",
-    "Permission denied",
-    "Resource temporarily unavailable",
-    "Deadlock condition",
+    "No such process",
     "Interrupted system call",
-    "I/O error",
-    "No room left on device",
-    "Unknown error"
-};
+    "Input/output error",
+    "Device not configured",
+    "Argument list too long",
+    "Exec format error",
+    "Bad file descriptor",
+    "No child processes",
+    "Resource deadlock avoided",
+    "Cannot allocate memory",
+    "Permission denied",
+    "Bad address",
+    "Block device required",
+    "Resource busy",
+    "File exists",
+    "Cross-device link",
+    "Operation not supported by device",
+    "Not a directory",
+    "Is a directory",
+    "Invalid argument",
+    "Too many open files in system",
+    "Too many open files",
+    "Inappropriate ioctl for device",
+    "Text file busy",
+    "File too large",
+    "No space left on device",
+    "Illegal seek",
+    "Read-only file system",
+    "Too many links",
+    "Broken pipe",
+    "Numerical argument out of domain",
+    "Result too large",
+    "Resource temporarily unavailable",
+    "Operation now in progress",
+    "Operation already in progress",
+    "Socket operation on non-socket",
+    "Destination address required",
+    "Message too long",
+    "Protocol wrong type for socket",
+    "Protocol not available",
+    "Protocol not supported",
+    "Socket type not supported",
+    "Operation not supported",
+    "Protocol family not supported",
+    "Address family not supported by protocol family",
+    "Address already in use",
+    "Can't assign requested address",
+    "Network is down",
+    "Network is unreachable",
+    "Network dropped connection on reset",
+    "Software caused connection abort",
+    "Connection reset by peer",
+    "No buffer space available",
+    "Socket is already connected",
+    "Socket is not connected",
+    "Can't send after socket shutdown",
+    "Too many references: can't splice",
+    "Operation timed out",
+    "Connection refused",
+    "Too many levels of symbolic links",
+    "File name too long",
+    "Host is down",
+    "No route to host",
+    "Directory not empty",
+    "Too many processes",
+    "Too many users",
+    "Disc quota exceeded",
+    "Stale NFS file handle",
+    "Too many levels of remote in path",
+    "RPC struct is bad",
+    "RPC version wrong",
+    "RPC prog. not avail",
+    "Program version wrong",
+    "Bad procedure for program",
+    "No locks available",
+    "Function not implemented",
+    "Inappropriate file type or format",
+    "Authentication error",
+    "Need authenticator",
+    "Device power is off",
+    "Device error",
+    "Value too large to be stored in data type",
+    "Bad executable (or shared library)",
+    "Bad CPU type in executable",
+    "Shared library version mismatch",
+    "Malformed Mach-o file",
+    "Operation canceled",
+    "Identifier removed",
+    "No message of desired type",
+    "Illegal byte sequence",
+    "Attribute not found",
+    "Bad message",
+    "EMULTIHOP (Reserved)",
+    "No message available on STREAM",
+    "ENOLINK (Reserved)",
+    "No STREAM resources",
+    "Not a STREAM",
+    "Protocol error",
+    "STREAM ioctl timeout",
+    "Operation not supported on socket",
+    "Policy not found",
+    "State not recoverable",
+    "Previous owner died",
+    "Interface output queue is full"};
+
+
 
 size_t strlen(const char *str){
     const char *str1 =str;
-    while ( *str1!= '\n'){
+    while ( *str1!= '\0'){
         str1++;
     }
     return str1-str;
@@ -145,30 +255,28 @@ char *strncpy(char *dest, const char *src, size_t n) {
     return dest;
 }
 
-char* strerror(int errnum) {
-    if (errnum >= 0 && errnum < sizeof(error_messages)/sizeof(char*)) {
-        return error_messages[errnum];
-    } else {
-        return "Unknown error";
-    }
-}//?????
+char *s21_strerror(int errorNumber) {
+  static char result[512] = {'\0'};
+
+  if (errorNumber <= MIN_ERRLIST || errorNumber >= MAX_ERRLIST) {
+    s21_sprintf(result, "Unknown error: %d", errorNumber);
+  } else {
+    s21_strcpy(result, ((char *)errorList[errorNumber]));
+  }
+
+  return result;
+}
 
 char *strpbrk(const char *str1, const char *str2) {
     const char *ptr1 = str1;
     const char *ptr2 = str2;
-    bool found = false;
     while (*ptr1) {
-        if (*ptr1 == *ptr2) {
-            found = true;
-            break;
+        for (; *ptr2; ptr2++) {
+            if (*ptr1 == *ptr2) {
+                return (char *)ptr1;
+            }
         }
-        ptr2++; 
-        if (*ptr2 == '\0') {
-            ptr1++;
-        }
-    }
-    if (found) {
-        return (char *)ptr1;
+        ptr1++;
     }
     return NULL;
 }
@@ -201,28 +309,62 @@ char *strstr(const char *haystack, const char *needle) {
 }
 
 char *strtok(char *str, const char *delim) {
-    static char* buffer = NULL;
-    }
-    if(str != NULL){
-        buffer = str;
-        char* saveptr = buffer;
-        char* token = strpbrk(buffer, delim);
-        if (token) {
-            *token = '\0';
-            token++;
-    } else {
-        token = buffer + strlen(buffer);
-    }
-    buffer = token;
-    } else saveptr = NULL;
+  static int next, restok;
+  static size_t idx;
+  static char *ptr;
+  static char *addr;
 
-    return saveptr;
+  if (str) {
+    restok = 1;
+    idx = 0, next = 0;
+    addr = str + strspn(str, delim);
+    ptr = str + strlen(str);
+  }
+  char *res = NULL;
+  if (!(addr >= ptr || next)) {
+    int exdelim = 1;
+    for (int i = 0; addr[i]; i++) {
+      size_t step = strspn(addr + i, delim);
+      if (step != 0) {
+        exdelim = 0;
+        for (size_t j = i; j < i + step; j++) addr[j] = '\0';
+
+        idx = step + i;
+        break;
+      }
+    }
+    if (restok == 1 && exdelim) next = 1;
+    res = addr;
+    addr += idx;
+  }
+  restok += 1;
+  return res;
 }
 
-void *to_upper(const char *str){}//16-
+void *to_upper(const char *str) {
+  char *newstr = calloc(strlen(str) + 1, 1);
+  for (unsigned long long i = 0; i < strlen(str); i++) {
+    if (str[i] < 'a' || str[i] > 'z') {
+      newstr[i] = str[i];
+    } else {
+      newstr[i] = str[i] - 32;
+    }
+  }
+  return newstr;
+}
 
 
-void *to_lower(const char *str){}//17-
+void *to_lower(const char *str) {
+  char *newstr = calloc(strlen(str) + 1, 1);
+  for (unsigned long long i = 0; i < strlen(str); i++) {
+    if (str[i] < 'A' || str[i] > 'Z') {
+      newstr[i] = str[i];
+    } else {
+      newstr[i] = str[i] + 32;
+    }
+  }
+  return newstr;
+}
 
 
 void *insert(const char *src, const char *str, size_t start_index){}//18-
